@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
-use BcMath\Number;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,8 +20,8 @@ class Product
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::NUMBER)]
-    private ?Number $price = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $price = null;
 
     public function getId(): ?int
     {
@@ -53,12 +52,12 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?Number
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(Number $price): static
+    public function setPrice(string $price): static
     {
         $this->price = $price;
 
