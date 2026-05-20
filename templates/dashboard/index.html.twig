@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome Dashboard
+{% endblock %}
+
+{% block body %}
+	<div class="dashboard-wrapper">
+		<div class="dashboard-card">
+			<h1>🎉 Congratulations! 🎉</h1>
+			<h2>Platform Technology Examination</h2>
+
+			<p class="lead">
+				You have successfully run this Symfony application.
+			</p>
+
+			<div class="badge">
+				✅ Running Symfony
+				{{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}
+			</div>
+			{% if app.request.server.get('RAILWAY_ENVIRONMENT') %}
+				<div class="badge">
+					✅ Deployed on Railway
+				</div>
+			{% endif %}
+			<div class="badge">
+				❌ Not Deployed Yet
+			</div>
+
+			<p class="footer-text">
+				Welcome to your platform technology dashboard.
+			</p>
+		</div>
+	</div>
+{% endblock %}
