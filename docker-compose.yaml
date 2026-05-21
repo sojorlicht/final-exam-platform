@@ -1,0 +1,57 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-platform}
+      MYSQL_USER: ${MYSQL_USER:-paltform}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  php:
+    build:
+      context: .
+      target: fpm
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - .:/var/www/html
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      APP_SECRET: ${APP_SECRET:-change_me_to_a_random_32_character_string}
+      DATABASE_URL: mysql://${MYSQL_USER:-platform}:${MYSQL_PASSWORD:-password}@mysql:3307/${MYSQL_DATABASE:-platform}?serverVersion=8.0.32&charset=utf8mb4
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3307
+      MYSQL_USER: ${MYSQL_USER:-platform}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-platform}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx-main.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/http.d/default.conf:ro
+      - .:/var/www/html:ro
+    depends_on:
+      php:
+        condition: service_started
+
+volumes:
+  mysql_data:
